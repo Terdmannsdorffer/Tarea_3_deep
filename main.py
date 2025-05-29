@@ -302,7 +302,7 @@ def main():
     parser.add_argument('--experiment', type=str, default='both',
                        choices=['both', 'with_centerness', 'without_centerness'],
                        help='Qué experimento ejecutar (default: both)')
-    parser.add_argument('--epochs', type=int, default=50,
+    parser.add_argument('--epochs', type=int, default=20,
                        help='Número de épocas de entrenamiento (default: 50)')
     parser.add_argument('--batch-size', type=int, default=16,
                        help='Tamaño del batch (default: 16)')
