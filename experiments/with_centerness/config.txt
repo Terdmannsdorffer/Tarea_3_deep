@@ -1,0 +1,32 @@
+ANNOTATIONS_DIR: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det\annotations
+BATCH_SIZE: 16
+CENTERNESS_LOSS_WEIGHT: 1.0
+CLASSES: ['dog', 'cat']
+CLASS_TO_IDX: {'dog': 0, 'cat': 1}
+CLS_LOSS_WEIGHT: 1.0
+COMPILE_MODEL: True
+CONF_THRESHOLD: 0.5
+CUDNN_BENCHMARK: True
+DATA_ROOT: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det
+FEATURES_DIR: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det\dino_features
+FEATURE_DIM: 384
+FPN_CHANNELS: 256
+IMAGES_DIR: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det\images
+IMAGE_SIZE: 224
+LEARNING_RATE: 0.001
+NMS_THRESHOLD: 0.5
+NUM_CLASSES: 2
+NUM_EPOCHS: 50
+NUM_PATCHES: 256
+NUM_WORKERS: 8
+PATCH_SIZE: 14
+PERSISTENT_WORKERS: True
+PIN_MEMORY: True
+PREFETCH_FACTOR: 2
+REG_LOSS_WEIGHT: 1.0
+STRIDES: [8, 16, 32, 64, 128]
+TRAIN_FILE: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det\train.txt
+USE_AMP: True
+USE_CENTERNESS: True
+VAL_FILE: C:\Users\Usuario\Desktop\deep\Tarea_3\cat_dog_det\val.txt
+WEIGHT_DECAY: 0.0001
