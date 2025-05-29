@@ -1,4 +1,4 @@
-# models/detector.py - Modelo completo de detección
+
 
 import torch
 import torch.nn as nn
@@ -18,7 +18,7 @@ class CatDogDetector(nn.Module):
             # Cargar DinoV2 solo para inferencia
             self.encoder = None  # Se usarán features pre-calculadas
         else:
-            # Cargar DinoV2 para fine-tuning (no recomendado para esta tarea)
+            
             self.encoder = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
             # Congelar encoder
             for param in self.encoder.parameters():

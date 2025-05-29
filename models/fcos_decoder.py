@@ -1,4 +1,4 @@
-# models/fcos_decoder.py - Implementación del decoder FCOS
+
 
 import torch
 import torch.nn as nn
@@ -15,10 +15,7 @@ class Scale(nn.Module):
         return x * self.scale
 
 class FCOSHead(nn.Module):
-    """
-    Cabeza FCOS para clasificación, regresión y centerness
-    Implementación fiel a la Figura 1: 3 ramas paralelas
-    """
+
     def __init__(self, in_channels, num_classes, num_convs=2, use_centerness=True):
         super().__init__()
         self.num_classes = num_classes
