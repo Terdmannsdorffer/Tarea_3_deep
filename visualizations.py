@@ -58,7 +58,7 @@ def generate_visualizations_for_model(checkpoint_path, output_dir, experiment_na
             detections = model.post_process(
                 outputs, 
                 conf_threshold=0.3,  # Umbral más bajo para ver más detecciones
-                nms_threshold=0.5
+                nms_threshold=0.3    # NMS más agresivo para eliminar duplicados
             )[0]
             
             # Calcular métricas para esta imagen
@@ -173,52 +173,52 @@ def create_visualization(result, config):
     """Crea una visualización para un resultado"""
     data = result['data']
     detections = result['detections']
-
+    
     # Cargar imagen
     img_path = os.path.join(config.IMAGES_DIR, f"{data['file_name']}.png")
     if not os.path.exists(img_path):
         img_path = os.path.join(config.IMAGES_DIR, f"{data['file_name']}.jpg")
-
+    
     image = Image.open(img_path).convert('RGB')
-
+    
     # Crear figura
     fig, ax = plt.subplots(1, figsize=(10, 10))
     ax.imshow(image)
-
+    
     # Escalar boxes
     scale_x = data['original_size'][0] / config.IMAGE_SIZE
     scale_y = data['original_size'][1] / config.IMAGE_SIZE
-
+    
     # Dibujar GT en verde
     for box, label in zip(data['boxes'], data['labels']):
-        device = box.device
-        scales = torch.tensor([scale_x, scale_y, scale_x, scale_y], device=device)
-        x1, y1, x2, y2 = (box * scales).cpu()
-        x1, y1, x2, y2 = x1.item(), y1.item(), x2.item(), y2.item()
-        rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1,
-                                 linewidth=3, edgecolor='green',
-                                 facecolor='none', linestyle='--')
+        x1, y1, x2, y2 = box.cpu().numpy() * np.array([scale_x, scale_y, scale_x, scale_y])
+        rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, 
+                               linewidth=3, edgecolor='green', 
+                               facecolor='none', linestyle='--')
         ax.add_patch(rect)
-        ax.text(x1, y1 - 10, f'GT: {config.CLASSES[label]}',
-                color='white', fontsize=14, weight='bold',
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="green", alpha=0.8))
-
+        ax.text(x1, y1-10, f'GT: {config.CLASSES[label]}', 
+               color='white', fontsize=14, weight='bold',
+               bbox=dict(boxstyle="round,pad=0.3", facecolor="green", alpha=0.8))
+    
     # Dibujar predicciones en rojo
-    for box, score, label in zip(detections['boxes'],
-                                 detections['scores'],
-                                 detections['labels']):
-        device = box.device
-        scales = torch.tensor([scale_x, scale_y, scale_x, scale_y], device=device)
-        x1, y1, x2, y2 = (box * scales).cpu()
-        x1, y1, x2, y2 = x1.item(), y1.item(), x2.item(), y2.item()
-        rect = patches.Rectangle((x1, y1), x2 - x1, y2 - y1,
-                                 linewidth=3, edgecolor='red',
-                                 facecolor='none')
+    # Para evitar múltiples boxes, solo mostrar la de mayor score
+    if len(detections['boxes']) > 0:
+        # Obtener índice de la detección con mayor score
+        best_idx = detections['scores'].argmax()
+        
+        box = detections['boxes'][best_idx]
+        score = detections['scores'][best_idx]
+        label = detections['labels'][best_idx]
+        
+        x1, y1, x2, y2 = box.cpu().numpy() * np.array([scale_x, scale_y, scale_x, scale_y])
+        rect = patches.Rectangle((x1, y1), x2-x1, y2-y1, 
+                               linewidth=3, edgecolor='red', 
+                               facecolor='none')
         ax.add_patch(rect)
-        ax.text(x2, y2 + 10, f'{config.CLASSES[label]}: {score:.2f}',
-                color='white', fontsize=14, weight='bold',
-                bbox=dict(boxstyle="round,pad=0.3", facecolor="red", alpha=0.8))
-
+        ax.text(x2, y2+10, f'{config.CLASSES[label.item()]}: {score:.2f}', 
+               color='white', fontsize=14, weight='bold',
+               bbox=dict(boxstyle="round,pad=0.3", facecolor="red", alpha=0.8))
+    
     # Título con información
     title = f'{data["file_name"]} - '
     if result['max_iou'] > 0.5 and result['correct_class']:
@@ -232,14 +232,13 @@ def create_visualization(result, config):
             title += f'MALO (Clase incorrecta, IoU: {result["max_iou"]:.2f})'
         else:
             title += f'MALO (IoU bajo: {result["max_iou"]:.2f})'
-
+    
     ax.set_title(title, fontsize=16, weight='bold')
     ax.set_xlim(0, data['original_size'][0])
     ax.set_ylim(data['original_size'][1], 0)
     ax.axis('off')
-
+    
     return fig
-
 
 def create_score_distribution_plot(all_results, output_dir, experiment_name):
     """Crea gráfico de distribución de scores"""
